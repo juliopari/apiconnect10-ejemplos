@@ -1,0 +1,99 @@
+swagger: '2.0'
+info:
+  title: poc-backendrest-gatewayscript
+  x-ibm-name: moc
+  version: 1.0.0
+schemes:
+  - https
+basePath: /moc/v1.0
+security:
+  - {}
+securityDefinitions:
+  clientID:
+    type: apiKey
+    in: header
+    name: X-IBM-Client-Id
+x-ibm-configuration:
+  cors:
+    enabled: true
+  gateway: datapower-api-gateway
+  type: rest
+  phase: realized
+  enforced: true
+  testable: true
+  assembly:
+    execute:
+      - gatewayscript:
+          version: 2.0.0
+          title: gatewayscript
+          source: "//AUX Variables\r\nvar apim = require('apim');\r\n\r\nconst urlopen = require('urlopen');\r\nlet providerBodyResponse = '';\r\nlet providerHeaderResponse = '';\r\n \r\n//Composición de invocación  \r\nconst providerHeaderRequest = { \r\n    'Content-Type': \"application/json\",\r\n}; \r\n\r\nconst options = {\r\n    target          : \"http://demo6865352.mockable.io/pruebita\",\r\n    method          : \"get\",\r\n    contentType     : \"application/json\",\r\n    sslClientProfile: \"api-sslcli-all'\",\r\n    headers         : providerHeaderRequest,\r\n    timeout         : 5\r\n};\r\n\r\n\r\nurlopen.open(options, function (error, response) {\r\n    // Creando un objeto para guardar posibles errores.\r\n    let objError = {};\r\n    if (error) {\r\n        // Seteando codigo de error y mensaje de error en variable objeto error\r\n        objError.code = error.errorCode;\r\n        objError.message = `${error.errorMessage} - ${error.errorDescription}`;\r\n        // Retornando respuesta erronea para ser controlada.\r\n        apim.setvariable('context.error', objError);\r\n        console.error('Error al invocar servicios de Salesforce Object Account:', objError);\r\n        throw error;\r\n    } else {\r\n        // Leyendo los datos de la respuesta obtenida.\r\n        response.readAsBuffer(function (error, responseData) {\r\n            // Validando en caso de error.\r\n            if (error) {\r\n                // Seteando codigo de error y mensaje de error en variable objeto error\r\n                objError.code = error.errorCode;\r\n                objError.message = `${error.errorMessage} - ${error.errorDescription}`;\r\n                // Retornando respuesta erronea para ser controlada\r\n                apim.setvariable('context.error', objError);\r\n                throw error;\r\n            }\r\n\r\n            apim.setvariable('message.headers.content-type', 'application/json');\r\n\r\n          // Retornando respuesta correcta.\r\n           if (response.statusCode == 200) {\r\n                    //Validando si JSON tiene la estructura correcta\r\n                    try {\r\n                        providerBodyResponse = JSON.parse(responseData);\r\n                    } catch(errorParser) {\r\n                        providerBodyResponse = responseData;\r\n                    }\r\n                    //Si encuentra registros\r\n                 \r\n                        apim.setvariable('message.body', providerBodyResponse);\r\n                        apim.setvariable('message.status.code', response.statusCode);\r\n                        apim.output('application/json');\r\n               \r\n           } else {\r\n                // Si ocurre una respuesta errada\r\n                objError.code = response.statusCode.toString();\r\n                objError.message = response.reasonPhrase;\r\n                apim.setvariable('message.body', objError);\r\n                apim.setvariable('message.status.code', response.statusCode);\r\n              \r\n\r\n            }\r\n        });\r\n    }\r\n});\r\n"
+  properties:
+    target-url:
+      value: 'http://demo6865352.mockable.io/pruebita'
+      description: The URL of the target service
+      encoded: false
+  catalogs: {}
+  application-authentication:
+    certificate: false
+  activity-log:
+    enabled: true
+    error-content: header
+    success-content: activity
+paths:
+  /:
+    get:
+      responses:
+        '200':
+          description: success
+          schema:
+            type: string
+      consumes: []
+      produces: []
+    put:
+      responses:
+        '200':
+          description: success
+          schema:
+            type: string
+      consumes: []
+      produces: []
+    post:
+      responses:
+        '200':
+          description: success
+          schema:
+            type: string
+      consumes: []
+      produces: []
+    delete:
+      responses:
+        '200':
+          description: success
+          schema:
+            type: string
+      consumes: []
+      produces: []
+    options:
+      responses:
+        '200':
+          description: success
+          schema:
+            type: string
+      consumes: []
+      produces: []
+    head:
+      responses:
+        '200':
+          description: success
+          schema:
+            type: string
+      consumes: []
+      produces: []
+    patch:
+      responses:
+        '200':
+          description: success
+          schema:
+            type: string
+      consumes: []
+      produces: []
